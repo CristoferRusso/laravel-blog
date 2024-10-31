@@ -10,6 +10,7 @@
        <div class="post-item">
         <div class="post-content">
         <h2><a href="{{route('posts.show', ['post' => $item->id])}}">{{$item->title}}</a></h2>
+        <div id="app"></div>
         <p>{{$item->description}}</p>
        </div>
        </div>
