@@ -2,20 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Post;
 
 class HomeController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function home() {
         $posts = Post::all();
-        return view('home', ['posts'=> $posts]);
+        return view('Home', ['posts'=> $posts]);
 
     }
-    public function about() {
-        return view('about');
+
+    public function calendar() {
+        $posts = Post::all();
+        return view('Calendar', ['posts'=> $posts]);
+
     }
-    public function login() {
-        return view('login');
-    }
+
 }

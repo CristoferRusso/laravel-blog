@@ -1,20 +1,34 @@
 import './bootstrap';
-import { createApp } from 'vue'; // Importa createApp
-import { createRouter, createWebHistory } from 'vue-router'; // Importa createRouter e createWebHistory
-import Vuetest from './components/Vuetest.vue';
+import { createApp } from 'vue';
+import App from "./components/App.vue";
+import router from "./route";
+import axios from 'axios';
+import Toast from 'vue3-toastify';
+import 'vue3-toastify/dist/index.css';
+import { createVuetify } from 'vuetify';
+import 'vuetify/styles';
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 
-// Configurazione delle rotte
-const routes = [
-  { path: '/app', component: Vuetest }, 
-];
+const vuetify = createVuetify({
+    components,
+    directives
+})
 
-// Crea un'istanza del router
-const router = createRouter({
-  history: createWebHistory(), // Usa createWebHistory
-  routes
-});
+const app = createApp(App);
 
-// Crea l'istanza dell'app Vue e monta con il router
-const app = createApp(Vuetest); // Crea l'app utilizzando Vuetest come componente principale
-app.use(router); // Usa il router
-app.mount('#app'); // Monta l'app
+// Usa il plugin di notifica
+app.use(Toast);
+
+// Configura Axios
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.headers.common['X-CSRF-TOKEN'] = document.head.querySelector('meta[name="csrf-token"]').content;
+
+// Utilizzo del router
+app.use(router);
+
+// Utilizzo di Vuetify
+app.use(vuetify);
+
+// Monta l'app
+app.mount('#app');
