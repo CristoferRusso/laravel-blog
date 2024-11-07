@@ -125,14 +125,15 @@ export default {
         },
         async login() {
             try {
-                const response = await axios.post('api/login', this.loginForm);
-                this.token = response.data.token;
-                localStorage.setItem('auth_token', this.token);
+                const loginResponse = await axios.post('api/login', this.loginForm, { withCredentials: true });
+                const token = loginResponse.data.token;
+                localStorage.setItem('auth_token', token);
                 this.$router.push('/calendar');
             } catch (error) {
                 this.$toast.error('Credenziali di login non valide!');
             }
         },
+
         async register() {
             try {
                 const response = await axios.post('api/register', this.registerForm);

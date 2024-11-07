@@ -7,37 +7,37 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', function (Request $request) {
-    $credentials = $request->only('email', 'password');
 
-    $user = User::where('email', $credentials['email'])->first();
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-    if ($user && Hash::check($credentials['password'], $user->password)) {
+    $user = User::where('email', $request->email)->first();
 
-        $token = $user->createToken('YourAppToken')->accessToken;
-
-        return response()->json([
-            'token' => $token['token'],
-        ]);
+    if (!$user || !Hash::check($request->password, $user->password)) {
+        return response()->json(['message' => 'Credenziali non valide'], 401);
     }
 
-    return response()->json(['message' => 'Invalid credentials'], 401);
+    // Genera il token
+    $token = $user->createToken('token-name')->plainTextToken;
+
+    return response()->json(['token' => $token]);
 });
 
 Route::post('register', [RegisterController::class, 'register']);
 
-Route::get('/profile', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/profile', function (Request $request) {
     return response()->json([
-        'message' => 'Accesso senza autenticazione',
-        'headers' => $request->headers->all(),
-        'authorization' => $request->header('Authorization')
+        'user' => $request->user(),
     ]);
 });
 
 
+Route::middleware('auth:sanctum')->post('logout', function (Request $request) {
 
-
-Route::middleware('auth:api')->post('logout', function (Request $request) {
-    $request->user()->token()->revoke();
+    $user = auth()->user();
+    $user->tokens()->delete();
 
     return response()->json(['message' => 'Logged out successfully']);
 });

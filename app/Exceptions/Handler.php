@@ -48,17 +48,4 @@ class Handler extends ExceptionHandler
             //
         });
     }
-
-    public function render($request, Throwable $e)
-    {
-        if ($e instanceof AuthenticationException) {
-            if ($request->is('api/*')) {
-                return response()->json([
-                    'message' => 'Token not found'
-                ], 404);
-            }
-        }
-
-        return parent::render($request, $e);
-    }
 }

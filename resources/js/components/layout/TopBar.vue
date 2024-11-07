@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import axios from '../../api/axios'
 
 export default {
     data() {
@@ -48,27 +48,17 @@ export default {
     methods: {
         async checkAuth() {
             try {
-                const token = localStorage.getItem('auth_token');
-                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-                const response = await axios.get('api/profile');
-                if (response.data && response.data.name) {
+                const response = await axios.get('/api/profile');
+                if (response.data.user) {
                     this.isLoggedIn = true;
                     this.user = response.data.name;
-                } else {
-                    this.isLoggedIn = false;
-                    this.user = null;
                 }
             } catch (error) {
-                console.error("Error checking auth:", error);
                 this.isLoggedIn = false;
-                this.user = null;
             }
         },
-
         async logout() {
-            const response = await axios.post('/api/logout');
-            console.log(response.data);
+            await axios.post('/api/logout');
             this.isLoggedIn = false;
             this.$router.push('/login');
         },
