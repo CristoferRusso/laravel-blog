@@ -11,6 +11,8 @@ import 'vuetify/styles';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
 
+
+
 // Crea l'istanza di Vuetify
 const vuetify = createVuetify({
     components,

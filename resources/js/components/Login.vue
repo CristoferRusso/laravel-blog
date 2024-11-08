@@ -35,7 +35,7 @@
                         </v-form>
                         <div class="text-center mt-3">
                             <p>Non hai un account?
-                                <v-btn small @click="toggleView">Registrati qui</v-btn>
+                                <v-btn small @click="changeStatusRegistering">Registrati qui</v-btn>
                             </p>
                         </div>
                     </v-card-text>
@@ -89,7 +89,7 @@
                         </v-form>
                         <div class="text-center mt-3">
                             <p>Hai già un account?
-                                <v-btn small @click="toggleView">Login qui</v-btn>
+                                <v-btn small @click="changeStatusRegistering">Login qui</v-btn>
                             </p>
                         </div>
                     </v-card-text>
@@ -100,55 +100,61 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { useStore } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import {toast} from 'vue3-toastify';
 
 export default {
+    computed: {
+        ...mapGetters('auth', ['isAuthenticated', 'getUser', 'isRegistering']),
+    },
     data() {
         return {
-            isRegistering: false,
+            loginForm: {
+                email: '',
+                password: '',
+            },
+            registerForm: {
+                email: '',
+                password: '',
+                password_confirmation: '',
+            },
         };
     },
     methods: {
-        toggleView() {
-            this.isRegistering = !this.isRegistering;
+        ...mapActions('auth', ['login', 'register', 'setIsRegistering']),
+
+        async loginUser() {
+            try {
+                await this.login(this.loginForm);
+                this.$router.push('/calendar');
+            } catch (error) {
+                toast.error("Errore durante il login.", {
+                    position: "top-center"
+                });
+            }
+        },
+
+        async registerUser() {
+            try {
+                await this.register(this.registerForm);
+                toast.success("Registrazione completata con successo!", {
+                    position: "top-center"
+                });
+            } catch (error) {
+                toast.error("Errore nella registrazione.", {
+                    position: "top-center"
+                });
+            }
+        },
+
+        changeStatusRegistering() {
+            this.setIsRegistering()
         }
     },
-    setup() {
-        const store = useStore(); // Ottieni l'istanza dello store
-
-        const loginForm = ref({
-            email: '',
-            password: '',
-        });
-        const registerForm = ref({
-            email: '',
-            password: '',
-            password_confirmation: ''
-        });
-
-        const loginUser = async () => {
-            try {
-                await store.dispatch('auth/login', loginForm.value); // Usa store.dispatch
-            } catch (error) {
-                console.error("Errore durante il login:", error);
-            }
-        };
-
-        const registerUser = async () => {
-            try {
-                await store.dispatch('auth/register', registerForm.value); // Usa store.dispatch
-            } catch (error) {
-                console.error("Errore durante la registrazione:", error);
-            }
-        };
-
-        return {
-            loginForm,
-            registerForm,
-            loginUser,
-            registerUser,
-        };
+    mounted() {
+        if (this.isAuthenticated) {
+            this.$router.push('/calendar');
+        }
     },
 };
 

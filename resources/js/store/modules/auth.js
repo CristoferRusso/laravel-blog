@@ -6,10 +6,14 @@ export const auth = {
     state: () => ({
         isLoggedIn: !!localStorage.getItem('auth_token'),
         user: null,
+        isRegistering: false
     }),
     getters: {
         isAuthenticated(state) {
             return state.isLoggedIn;
+        },
+        isRegistering(state) {
+            return state.isRegistering;
         },
         getUser(state) {
             return state.user && state.user.name;
@@ -19,6 +23,9 @@ export const auth = {
         setUser(state, user) {
             state.user = user;
             state.isLoggedIn = !!user;
+        },
+        setRegistering(state) {
+            state.isRegistering = !state.isRegistering
         },
         clearUser(state) {
             state.user = null;
@@ -41,8 +48,9 @@ export const auth = {
                 console.error('Login failed:', error);
             }
         },
-        async register({},credentials) {
+        async register({ commit },credentials) {
             await axios.post('/api/register', credentials);
+            commit('setRegistering');
         },
         async logout({ commit }) {
             await axios.post('/api/logout');
@@ -61,5 +69,9 @@ export const auth = {
                 commit('clearUser');
             }
         },
+
+        setIsRegistering({ commit }) {
+            commit('setRegistering');
+        }
     }
 };
