@@ -8,7 +8,7 @@
                         <h3>Login</h3>
                     </v-card-title>
                     <v-card-text>
-                        <v-form @submit.prevent="login" v-model="valid" lazy-validation>
+                        <v-form @submit.prevent="loginUser" lazy-validation>
                             <v-text-field
                                 label="Email"
                                 v-model="loginForm.email"
@@ -29,13 +29,13 @@
                                 clearable
                                 autocomplete="current-password"
                             ></v-text-field>
-                            <v-btn color="primary" class="w-100"  type="submit">
+                            <v-btn color="primary" class="w-100" type="submit">
                                 Login
                             </v-btn>
                         </v-form>
                         <div class="text-center mt-3">
                             <p>Non hai un account?
-                                <v-btn  small @click="toggleView">Registrati qui</v-btn>
+                                <v-btn small @click="toggleView">Registrati qui</v-btn>
                             </p>
                         </div>
                     </v-card-text>
@@ -51,7 +51,7 @@
                         <h3>Registrazione</h3>
                     </v-card-title>
                     <v-card-text>
-                        <v-form @submit.prevent="register">
+                        <v-form @submit.prevent="registerUser">
                             <v-text-field
                                 label="Nome"
                                 v-model="registerForm.name"
@@ -89,7 +89,7 @@
                         </v-form>
                         <div class="text-center mt-3">
                             <p>Hai già un account?
-                                <v-btn  small @click="toggleView">Login qui</v-btn>
+                                <v-btn small @click="toggleView">Login qui</v-btn>
                             </p>
                         </div>
                     </v-card-text>
@@ -100,51 +100,58 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { ref } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
     data() {
         return {
             isRegistering: false,
-            valid: true,
-            loginForm: {
-                email: '',
-                password: '',
-            },
-            registerForm: {
-                name: '',
-                email: '',
-                password: '',
-                password_confirmation: ''
-            },
         };
     },
     methods: {
         toggleView() {
             this.isRegistering = !this.isRegistering;
-        },
-        async login() {
-            try {
-                const loginResponse = await axios.post('api/login', this.loginForm, { withCredentials: true });
-                const token = loginResponse.data.token;
-                localStorage.setItem('auth_token', token);
-                this.$router.push('/calendar');
-            } catch (error) {
-                this.$toast.error('Credenziali di login non valide!');
-            }
-        },
+        }
+    },
+    setup() {
+        const store = useStore(); // Ottieni l'istanza dello store
 
-        async register() {
+        const loginForm = ref({
+            email: '',
+            password: '',
+        });
+        const registerForm = ref({
+            email: '',
+            password: '',
+            password_confirmation: ''
+        });
+
+        const loginUser = async () => {
             try {
-                const response = await axios.post('api/register', this.registerForm);
-                console.log('Registration successful:', response.data);
-                this.toggleView();
+                await store.dispatch('auth/login', loginForm.value); // Usa store.dispatch
             } catch (error) {
-                console.error('Registration error:', error.response.data);
+                console.error("Errore durante il login:", error);
             }
-        },
+        };
+
+        const registerUser = async () => {
+            try {
+                await store.dispatch('auth/register', registerForm.value); // Usa store.dispatch
+            } catch (error) {
+                console.error("Errore durante la registrazione:", error);
+            }
+        };
+
+        return {
+            loginForm,
+            registerForm,
+            loginUser,
+            registerUser,
+        };
     },
 };
+
 </script>
 
 <style scoped>

@@ -11,20 +11,20 @@
                     <li class="nav-item">
                         <router-link class="nav-link fw-semibold" to="/">Home</router-link>
                     </li>
-                    <li class="nav-item" v-if="isLoggedIn">
+                    <li class="nav-item" v-if="isAuthenticated">
                         <router-link class="nav-link fw-semibold" to="/calendar">Calendario</router-link>
                     </li>
-                    <li class="nav-item" v-if="isLoggedIn">
+                    <li class="nav-item" v-if="isAuthenticated">
                         <router-link class="nav-link fw-semibold" to="/setting">Impostazioni</router-link>
                     </li>
-                    <li class="nav-item" v-if="!isLoggedIn">
+                    <li class="nav-item" v-if="!isAuthenticated">
                         <router-link class="nav-link fw-semibold" to="/login">Login</router-link>
                     </li>
-                    <li class="nav-item " v-if="isLoggedIn">
+                    <li class="nav-item " v-if="isAuthenticated">
                         <button @click="logout" class="btn btn-link nav-link fw-semibold">Logout</button>
                     </li>
                     <li class="nav-item">
-                        <span class="fw-semibold">{{ user }}</span>
+                        <span class="fw-semibold" v-if="getUser">{{ getUser }}</span>
                     </li>
                 </ul>
             </div>
@@ -33,36 +33,18 @@
 </template>
 
 <script>
-import axios from '../../api/axios'
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-    data() {
-        return {
-            isLoggedIn: false,
-            user: null
-        };
-    },
-    created() {
-        this.checkAuth();
+    computed: {
+        ...mapGetters('auth', ['isAuthenticated', "getUser"]),
     },
     methods: {
-        async checkAuth() {
-            try {
-                const response = await axios.get('/api/profile');
-                if (response.data.user) {
-                    this.isLoggedIn = true;
-                    this.user = response.data.name;
-                }
-            } catch (error) {
-                this.isLoggedIn = false;
-            }
-        },
-        async logout() {
-            await axios.post('/api/logout');
-            this.isLoggedIn = false;
-            this.$router.push('/login');
-        },
+        ...mapActions('auth', ['logout']),
     },
+    mounted() {
+        this.$store.dispatch('auth/checkAuth');
+    }
 };
 </script>
 

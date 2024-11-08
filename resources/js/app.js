@@ -1,6 +1,7 @@
 import './bootstrap';
 import { createApp } from 'vue';
 import App from "./components/App.vue";
+import store from '../js/store';
 import router from "./route";
 import axios from 'axios';
 import Toast from 'vue3-toastify';
@@ -20,6 +21,7 @@ const app = createApp(App);
 
 // Usa il plugin di notifica
 app.use(Toast);
+app.use(store);
 
 // Imposta l'URL di base per le richieste (modifica con il tuo URL)
 axios.defaults.baseURL = 'http://localhost:8000/';  // Cambia con l'URL del tuo server API
